@@ -826,7 +826,7 @@
             const modelOptions = document.querySelectorAll('.model-option');
             const currentModelName = document.getElementById('currentModelName');
             const currentModelProvider = document.getElementById('currentModelProvider');
-
+        
             let sessionId = localStorage.getItem('linuxianSessionId');
             let currentModel = localStorage.getItem('linuxianModel') || 'gemini';
             
@@ -834,9 +834,9 @@
                 sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
                 localStorage.setItem('linuxianSessionId', sessionId);
             }
-
+        
             updateModelSelection(currentModel);
-
+        
             function updateModelSelection(modelId) {
                 modelOptions.forEach(option => {
                     option.classList.remove('active');
@@ -851,13 +851,13 @@
                 currentModel = modelId;
                 localStorage.setItem('linuxianModel', modelId);
             }
-
+        
             marked.setOptions({
                 breaks: true,
                 gfm: true,
                 sanitize: false
             });
-
+        
             function addMessage(content, isUser = false, modelUsed = null) {
                 const messageDiv = document.createElement('div');
                 messageDiv.className = isUser ? 'message user-message' : 'message assistant-message';
@@ -897,20 +897,20 @@
                     siteIcon.classList.add('visible');
                 }
             }
-
+        
             function scrollToBottom() {
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }
-
+        
             function showTypingIndicator() {
                 typingIndicator.style.display = 'block';
                 scrollToBottom();
             }
-
+        
             function hideTypingIndicator() {
                 typingIndicator.style.display = 'none';
             }
-
+        
             async function sendMessage(message) {
                 try {
                     const response = await fetch('/chat', {
@@ -924,11 +924,11 @@
                             model: currentModel 
                         }),
                     });
-
+        
                     if (!response.ok) {
                         throw new Error('Network response was not ok');
                     }
-
+        
                     const data = await response.json();
                     return data;
                 } catch (error) {
@@ -936,74 +936,65 @@
                     return { reply: 'Sorry, I encountered an error while processing your request. Please try again.' };
                 }
             }
-
+        
+            async function handleFormSubmission(form, input, button, isCentered = false) {
+                const message = input.value.trim();
+                if (!message) return;
+                
+                addMessage(message, true);
+                
+                input.value = '';
+                input.style.height = '56px';
+                if (!isCentered) {
+                    input.classList.remove('expanded');
+                }
+                
+                button.disabled = true;
+                
+                showTypingIndicator();
+                
+                const data = await sendMessage(message);
+                
+                hideTypingIndicator();
+                
+                const modelName = currentModelName.textContent;
+                addMessage(data.reply, false, modelName);
+                
+                button.disabled = false;
+                
+                if (isCentered) {
+                    chatInputCentered.focus();
+                } else {
+                    chatInput.focus();
+                }
+            }
+        
             chatFormCentered.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
-                const message = chatInputCentered.value.trim();
-                if (!message) return;
-                
-                addMessage(message, true);
-                
-                chatInputCentered.value = '';
-                chatInputCentered.style.height = '56px';
-                
-                sendButtonCentered.disabled = true;
-                
-                showTypingIndicator();
-                
-                const data = await sendMessage(message);
-                
-                hideTypingIndicator();
-                
-                const modelName = currentModelName.textContent;
-                addMessage(data.reply, false, modelName);
-                
-                sendButtonCentered.disabled = false;
-                
-                chatInput.focus();
+                await handleFormSubmission(this, chatInputCentered, sendButtonCentered, true);
             });
-
+        
             chatForm.addEventListener('submit', async function(e) {
                 e.preventDefault();
-                
-                const message = chatInput.value.trim();
-                if (!message) return;
-                
-                addMessage(message, true);
-                
-                chatInput.value = '';
-                chatInput.style.height = '56px';
-                chatInput.classList.remove('expanded');
-                
-                sendButton.disabled = true;
-                
-                showTypingIndicator();
-                
-                const data = await sendMessage(message);
-                
-                hideTypingIndicator();
-                
-                const modelName = currentModelName.textContent;
-                addMessage(data.reply, false, modelName);
-                
-                sendButton.disabled = false;
-                
-                chatInput.focus();
+                await handleFormSubmission(this, chatInput, sendButton, false);
             });
-
+        
             function setupEnterKeyHandler(inputElement, formElement) {
                 inputElement.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter' && !e.shiftKey) {
                         e.preventDefault();
-                        formElement.dispatchEvent(new Event('submit'));
+                        
+                        const message = inputElement.value.trim();
+                        if (!message) return;
+                        
+                        formElement.dispatchEvent(new Event('submit', { cancelable: true }));
                     }
                 });
             }
-
+        
             setupEnterKeyHandler(chatInputCentered, chatFormCentered);
             setupEnterKeyHandler(chatInput, chatForm);
-
+        
             function setupAutoResize(inputElement, isCentered = false) {
                 inputElement.addEventListener('input', function() {
                     this.style.height = 'auto';
@@ -1018,11 +1009,23 @@
                         }
                     }
                 });
+                
+                inputElement.addEventListener('paste', function() {
+                    setTimeout(() => {
+                        this.style.height = 'auto';
+                        const newHeight = Math.min(this.scrollHeight, 140);
+                        this.style.height = newHeight + 'px';
+                        
+                        if (!isCentered && newHeight > 56) {
+                            this.classList.add('expanded');
+                        }
+                    }, 0);
+                });
             }
-
+        
             setupAutoResize(chatInputCentered, true);
             setupAutoResize(chatInput, false);
-
+        
             suggestionCards.forEach(card => {
                 card.addEventListener('click', function() {
                     const prompt = this.getAttribute('data-prompt');
@@ -1032,11 +1035,11 @@
                     chatInputCentered.style.height = Math.min(chatInputCentered.scrollHeight, 140) + 'px';
                 });
             });
-
+        
             modelDropdownButton.addEventListener('click', function() {
                 modelDropdownContent.classList.toggle('show');
             });
-
+        
             modelOptions.forEach(option => {
                 option.addEventListener('click', function() {
                     const modelId = this.dataset.model;
@@ -1044,13 +1047,13 @@
                     modelDropdownContent.classList.remove('show');
                 });
             });
-
+        
             document.addEventListener('click', function(event) {
                 if (!modelDropdownButton.contains(event.target) && !modelDropdownContent.contains(event.target)) {
                     modelDropdownContent.classList.remove('show');
                 }
             });
-
+        
             siteIcon.addEventListener('click', function() {
                 sessionId = 'session_' + Math.random().toString(36).substr(2, 9);
                 localStorage.setItem('linuxianSessionId', sessionId);
@@ -1063,7 +1066,7 @@
                 
                 chatInputCentered.focus();
             });
-
+        
             chatInputCentered.focus();
         });
     </script>

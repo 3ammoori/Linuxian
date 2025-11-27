@@ -1,32 +1,33 @@
 # Linuxian
 
-A website for Linux users, programmers, and open-source enthusiasts. Provides AI-powered assistance through multiple language models with a focus on Linux, security, and privacy topics.
+A web-based platform designed for Linux users, software developers, and open-source enthusiasts. The application delivers AI-powered assistance through multiple language models, with specialized focus on Linux systems, cybersecurity, and privacy-related topics.
 
 ## Features
 
-- Dual AI model support (Google Gemini 2.0 Flash and Groq's Llama 3.1 8B)
-- Conversation memory with session management
-- Markdown rendering for code blocks and formatted responses
-- Responsive design for desktop and mobile
-- Pre-defined suggestion cards for common Linux topics
+- Dual AI model architecture (Google Gemini 2.0 Flash and Groq's Llama 3.1 8B)
+- Persistent conversation memory with session management
+- Markdown rendering support for code blocks and formatted responses
+- Responsive design compatible with both desktop and mobile devices
+- Pre-configured suggestion cards for common Linux-related queries
 - Real-time typing indicators
-- I don't know dude
+---
+- Note: The current features work well, which is the main thing. My to-do list for new ones is ambitious, but it currently lives in a complex symbiotic relationship with my motivation, free time, and the mysterious forces of procrastination. So, while I fully intend to add more, the schedule is "eventually". In the meantime, what's here is solid and ready to use, yeah.
 
-## Website
+## Access
 
-[linuxian.vercel.app](https://linuxian.vercel.app)
+The platform is accessible at: [linuxian.vercel.app](https://linuxian.vercel.app)
 
-## Models
+## Supported Models
 
-- **Gemini 2.0 Flash** (Google) - Default model
-- **Llama 3.1 8B** (Groq) - Alternative model
+- **Gemini 2.0 Flash** (Google) - Primary model
+- **Llama 3.1 8B** (Groq) - Secondary model
 
-## Technical Details
+## Technical Architecture
 
-The website is built with Express.js backend and vanilla JavaScript frontend. It uses the Google Generative AI and Groq APIs for AI model integration.
+The application utilizes an Express.js backend with a vanilla JavaScript frontend. Integration with AI services is achieved through the Google Generative AI and Groq APIs.
 
-The system is configured with a specialized prompt for "Linuxian" - an assistant focused on Linux, programming, security, and open-source topics. Conversations maintain context within sessions and automatically trim to the last 20 messages.
+The system implements a specialized prompt configuration for "Linuxian" - an AI assistant specifically optimized for Linux administration, programming, security protocols, and open-source technologies. Conversation context is maintained within sessions, with automatic trimming to preserve the most recent 20 messages for optimal performance.
 
 ## License
 
-[MIT License](LICENSE)
+This project is distributed under the [MIT License](LICENSE).
